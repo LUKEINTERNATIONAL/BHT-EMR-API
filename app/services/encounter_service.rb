@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
-class EncounterService
+class EncounterService < ApplicationService
+  register_event :encounter_voided
+
   def self.recent_encounter(encounter_type_name:, patient_id:, date: nil,
                             start_date: nil, program_id: nil)
     start_date ||= Date.strptime('1900-01-01')
@@ -31,8 +33,7 @@ class EncounterService
     )
   end
 
-  def update(encounter, patient: nil, type: nil, encounter_datetime: nil,
-             provider: nil, program:)
+  def update(encounter, patient: nil, type: nil, encounter_datetime: nil, provider: nil, program:)
     updates = {
       patient: patient, type: type, provider: provider,
       program: program, encounter_datetime: encounter_datetime
@@ -53,5 +54,6 @@ class EncounterService
 
   def void(encounter, reason)
     encounter.void(reason)
+    publish_event(:encounter_voided, encounter_id: encounter.encounter_id)
   end
 end
