@@ -25,7 +25,7 @@ describe Voidable do
         @after_void = nil
       end
 
-      def save
+      def save!(_)
         true
       end
 
@@ -58,6 +58,7 @@ describe Voidable do
     expect(@voidable.date_voided).to be > (Time.now - 5.minutes)
     expect(@voidable.voided_by).to eq(@user.user_id)
     expect(@voidable.void_reason).to eq(:pumbwa)
+    expect(@voidable.voided?).to be(true)
   end
 
   it 'is able to re-map void interface' do
@@ -81,7 +82,7 @@ describe Voidable do
         :pumbwa_id
       end
 
-      def save
+      def save!(_)
         true
       end
     end).new

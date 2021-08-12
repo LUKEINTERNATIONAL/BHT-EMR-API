@@ -18,6 +18,15 @@ class RetirableRecord < ApplicationRecord
 
   belongs_to :creator_user, foreign_key: 'creator', class_name: 'User'
 
+  validates_presence_of :retire_reason, if: :voided?
+  validates_presence_of :retired_by, if: :voided?
+  validates_presence_of :date_retired, if: :voided?
+
+  remap_voidable_interface voided: :retired,
+                           date_voided: :date_retired,
+                           void_reason: :retire_reason,
+                           voided_by: :retired_by
+
   def void(*args, **kwargs)
     # HACK: This should normally be called within the top most scope of
     # a class but we are calling it here as it seems not work through

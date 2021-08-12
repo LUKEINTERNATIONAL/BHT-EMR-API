@@ -26,7 +26,8 @@ module Voidable
 
   def voided?
     raise 'Model not voidable' unless voidable?
-    voided != 0
+
+    send(self.class._voidable_field(:voided)) != 0
   end
 
   def voidable?
@@ -93,9 +94,19 @@ module Voidable
       @after_void_callbacks ||= []
     end
 
+    def _voidable_interface
+      return @interface if @interface
+
+      superclass.respond_to?(:_voidable_interface) ? superclass._voidable_interface : nil
+    end
+
+    def _voidable_interface=(interface)
+      @interface = interface
+    end
+
     def _voidable_field(field)
-      remap_voidable_interface unless @interface # Initialise default interface
-      @interface[field]
+      remap_voidable_interface unless _voidable_interface # Initialise default interface
+      _voidable_interface[field]
     end
 
     def _update_voidable_field(instance, field, value)
