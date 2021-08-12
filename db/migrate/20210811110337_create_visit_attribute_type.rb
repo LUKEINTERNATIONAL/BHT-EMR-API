@@ -4,7 +4,7 @@ class CreateVisitAttributeType < ActiveRecord::Migration[5.2]
 
     create_table :visit_attribute_type, id: false do |t|
       t.integer :visit_attribute_type_id, primary_key: true, null: false, autoincrement: true
-      t.string :name, limit: 255, null: false
+      t.string :name, limit: 255, null: false, unique: true
       t.string :description, limit: 1024
       t.string :datatype, limit: 255
       t.text :datatype_config, limit: 65_535

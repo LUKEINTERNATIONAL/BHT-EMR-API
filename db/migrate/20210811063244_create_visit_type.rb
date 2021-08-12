@@ -4,7 +4,7 @@ class CreateVisitType < ActiveRecord::Migration[5.2]
 
     create_table :visit_type, id: false do |t|
       t.integer :visit_type_id, null: false, primary_key: true, autoincrement: true
-      t.string :name, null: false, limit: 255
+      t.string :name, null: false, limit: 255, unique: true
       t.string :description, limit: 1024
       t.integer :creator, null: false
       t.datetime :date_created, null: false, default: -> { 'NOW()' }

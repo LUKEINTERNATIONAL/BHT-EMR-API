@@ -6,6 +6,7 @@ class CreateVisitAttribute < ActiveRecord::Migration[5.2]
       t.integer :visit_attribute_id, null: false, primary_key: true, autoincrement: true
       t.integer :visit_id
       t.integer :attribute_type_id, null: false
+      t.text :value_reference, null: false, limit: 65_535
       t.integer :creator
       t.datetime :date_created
       t.integer :changed_by
