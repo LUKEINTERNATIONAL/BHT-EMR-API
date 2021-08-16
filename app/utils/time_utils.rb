@@ -10,11 +10,25 @@ module TimeUtils
       Date.today - 120.years
     end
 
+    def date_range(datetime)
+      start_of_day(datetime)..end_of_day(datetime)
+    end
+
     # Returns a 24 hour period (day) containing the date
     def day_bounds(datetime)
-      datetime = datetime&.to_time || datetime
-      [datetime.strftime('%Y-%m-%d 00:00:00').to_time,
-       datetime.strftime('%Y-%m-%d 23:59:59').to_time]
+      [start_of_day(datetime), end_of_day(datetime)]
+    end
+
+    def start_of_day(date)
+      return nil unless date
+
+      date.to_date.to_time
+    end
+
+    def end_of_day(date)
+      return nil unless date
+
+      date.to_date.strftime('%Y-%m-%d 23:59:59').to_time
     end
 
     # Returns a time object comprising the given date plus the current time.

@@ -7,6 +7,9 @@ FactoryBot.define do
     association :patient
     association :visit_type
 
+    date_started { Time.now }
+    date_stopped { Time.now + 2.hours }
+
     creator { User.first.user_id }
   end
 end

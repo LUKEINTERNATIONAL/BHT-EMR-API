@@ -9,5 +9,17 @@ class Visit < VoidableRecord
   belongs_to :visit_type
   belongs_to :patient
 
+  has_many :visit_attributes
+
   validates_presence_of %i[location patient visit_type]
+
+  def as_json(options = {})
+    super(options.merge(
+      methods: %i[type]
+    ))
+  end
+
+  def type
+    visit_type.name
+  end
 end
