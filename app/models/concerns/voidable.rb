@@ -27,7 +27,7 @@ module Voidable
   def voided?
     raise 'Model not voidable' unless voidable?
 
-    send(self.class._voidable_field(:voided)) != 0
+    ![0, false].include?(send(self.class._voidable_field(:voided)))
   end
 
   def voidable?
