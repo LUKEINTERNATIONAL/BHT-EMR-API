@@ -3,11 +3,21 @@
 module VisitService
   ##
   # Start a new visit for given patient in specified program
-  def self.new_visit(patient, program, date_started: nil, visit_type: nil)
-    Visit.create(visit_type: visit_type || VisitType.normal_visit,
-                 patient: patient,
-                 indicator_concept_id: program.concept_id,
-                 date_started: TimeUtils.start_of_day(date_started) || Time.now)
+  def self.new_visit(patient_id, program_id, date_started: nil, visit_type_id: nil)
+    program = Program.find_by_program_id(program_id)
+    raise InvalidParameterError, "Program ##{program_id} not found" unless program
+
+    visit_type = visit_type_id ? VisitType.find_by_visit_type_id(visit_type_id) : VisitType.find_by_name!(VisitType::NORMAL_VISIT_NAME)
+    raise InvalidParameterError, "Visit type ##{visit_type_id} not found" unless visit_type
+
+    patient = Patient.find_by_patient_id(patient_id)
+    raise InvalidParameterError, "Patient ##{patient_id} not found" unless patient
+
+    Visit.create!(visit_type: visit_type,
+                  patient: patient,
+                  indication_concept_id: program.concept_id,
+                  date_started: TimeUtils.start_of_day(date_started) || Time.now,
+                  location: Location.current)
   end
 
   def self.update_visit(visit, date_stopped:)
@@ -22,14 +32,14 @@ module VisitService
   # Parameters:
   #   program - Limit visits to those of this program only
   #   visit_type - Limit visits to this visit_type (defaults to Normal visit)
-  def self.find_visits(patient_id: nil, program_name: nil, visit_type_name: nil, date_started: nil, status: nil)
+  def self.find_visits(patient_id: nil, program_id: nil, visit_type_id: nil, date_started: nil, status: nil)
     query_builder = VisitsQueryBuilder.new
 
     query_builder.filter_by_status(status) if status
     query_builder.filter_by_date_started(date_started) if date_started
     query_builder.filter_by_patient_id(patient_id) if patient_id
-    query_builder.filter_by_program_name(program_name) if program_name
-    query_builder.filter_by_visit_type_name(visit_type_name) if visit_type_name
+    query_builder.filter_by_program_id(program_id) if program_id
+    query_builder.filter_by_visit_type_id(visit_type_id) if visit_type_id
 
     query_builder.query
   end
@@ -57,13 +67,13 @@ module VisitService
       @visits = @visits.where(patient_id: patient_id)
     end
 
-    def filter_by_program_name(name)
+    def filter_by_program_id(program_id)
       @visits = @visits.joins('INNER JOIN program ON program.concept_id = visit.indication_concept_id')
-                       .where('program.name = ?', name)
+                       .where('program.program_id = ?', program_id)
     end
 
-    def filter_by_visit_type_name(name)
-      @visits = @visits.joins(:visit_type).merge(VisitType.where(name: name))
+    def filter_by_visit_type_id(visit_type_id)
+      @visits = @visits.joins(:visit_type).merge(VisitType.where(visit_type_id: visit_type_id))
     end
 
     def query
